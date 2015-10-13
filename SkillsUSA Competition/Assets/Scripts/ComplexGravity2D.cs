@@ -2,7 +2,7 @@
 using System.Collections;
 
 namespace OctoTools {
-    public class GravitySim : MonoBehaviour {
+    public class ComplexGravity2D : MonoBehaviour {
         public Vector2 gravity = new Vector2 (0, -9.8F);
         Rigidbody2D r;
 
