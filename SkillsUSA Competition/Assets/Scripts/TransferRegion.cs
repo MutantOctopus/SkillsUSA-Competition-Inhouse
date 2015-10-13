@@ -1,6 +1,7 @@
 ﻿using OctoTools;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SurfacePlatformer {
@@ -18,11 +19,16 @@ namespace SurfacePlatformer {
             CounterClockwise90 = 90,
             Invert = 180
         }
+        private struct PairCloneReturn {
+            public GameObject result;
+            public bool? hadPair;
+            public bool unlocked;
+        }
 
         public bool scaleManuallyAltered {
             get; private set;
         }
-        
+
         [SerializeField]
         private GravRotation turnToPaired;
         [SerializeField]
@@ -33,6 +39,7 @@ namespace SurfacePlatformer {
         private Func<Vector2, Vector2> VecRotate;
         private Vector3 scale;
         private Vector2 offset;
+        private IDictionary<GameObject, GameObject> localObjects;
 
         // Use this for initialization
         void Start () {
@@ -58,40 +65,34 @@ namespace SurfacePlatformer {
                 scale = gameObject.transform.localScale;
             }
             if (pair && scaleManuallyAltered && !pair.scaleManuallyAltered) {
-                pair.transform.localScale = scale;
+                pair.transform.localScale = VecRotate(scale);
             }
-            scaleManuallyAltered = false;
             #endregion
+        }
+
+        void LateUpdate () {
+            scaleManuallyAltered = false;
         }
 
         public void OnTriggerEnter2D (Collider2D collision) {
             string ctag = collision.gameObject.tag;
-            if (ctag == "Player" || ctag == "Enemy") {
-                collision.gameObject.tag = "Untagged";
+            if (!pair.localObjects.ContainsKey(collision.gameObject) && (ctag == "Player" || ctag == "Enemy")) {
                 GameObject clone = Instantiate (
                     collision.gameObject,
-                    (Vector2) collision.gameObject.transform.position + offset,
+                    (Vector2)collision.gameObject.transform.position + offset,
                     collision.gameObject.transform.rotation
-                    ) as GameObject;;
+                    ) as GameObject; ;
                 var clRigid = clone.GetComponent<Rigidbody2D> ();
                 var clGrav = clone.GetComponent<ComplexGravity2D> ();
-                clRigid.velocity = VecRotate(collision.GetComponent<Rigidbody2D> ().velocity);
+                clRigid.velocity = VecRotate (collision.GetComponent<Rigidbody2D> ().velocity);
                 clRigid.angularVelocity = collision.GetComponent<Rigidbody2D> ().angularVelocity;
                 clGrav.gravity = VecRotate (clGrav.gravity);
-                clone.transform.RotateAround(pair.transform.position, Vector3.forward, (int)turnToPaired);
-                StartCoroutine (changeTags(ctag, collision.gameObject, clone));
+                clone.transform.RotateAround (pair.transform.position, Vector3.forward, (int)turnToPaired);
             }
         }
 
         public void OnTriggerExit2D (Collider2D collision) {
 
-        }
-
-        private IEnumerator changeTags (string tag, params GameObject [] objectsToChange) {
-            yield return null;
-            foreach (GameObject g in objectsToChange) {
-                g.tag = tag;
-            }
         }
 
         private Func<Vector2, Vector2> GetVectorTransform (GravRotation gr) {
