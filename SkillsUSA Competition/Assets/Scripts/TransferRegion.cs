@@ -14,8 +14,8 @@ namespace SurfacePlatformer {
         }
         private enum GravRotation {
             Straight = 0,
-            Clockwise90 = 90,
-            CounterClockwise90 = -90,
+            Clockwise90 = -90,
+            CounterClockwise90 = 90,
             Invert = 180
         }
 
@@ -78,7 +78,7 @@ namespace SurfacePlatformer {
                 clRigid.velocity = VecRotate(collision.GetComponent<Rigidbody2D> ().velocity);
                 clRigid.angularVelocity = collision.GetComponent<Rigidbody2D> ().angularVelocity;
                 clGrav.gravity = VecRotate (clGrav.gravity);
-                clone.transform.Rotate(pair.transform.forward, (int)turnToPaired, Space.World);
+                clone.transform.RotateAround(pair.transform.position, Vector3.forward, (int)turnToPaired);
                 StartCoroutine (changeTags(ctag, collision.gameObject, clone));
             }
         }
