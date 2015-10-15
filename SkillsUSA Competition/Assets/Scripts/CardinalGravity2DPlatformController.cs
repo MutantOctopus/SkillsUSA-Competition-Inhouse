@@ -2,16 +2,18 @@
 using UnityEditor;
 using System.Collections;
 using OctoTools;
+using Gravity = CardinalGravity2D;
 
-[RequireComponent (typeof (ComplexGravity2D))]
-public class ComplexGravity2DPlatformController : MonoBehaviour {
+[RequireComponent (typeof (Gravity))]
+[RequireComponent (typeof (Rigidbody2D))]
+public class CardinalGravity2DPlatformController : MonoBehaviour {
     #region Variables
     #region public variables
     [Range (0.01f, 999)]
     public float speed = 10f; // Horizontal movement speed on ground          
     [Range (0, 1)]
     public float groundControl = 0.5f; // Used when calculating horizontal speed lerp: lower numbers mean "slippery" controls (like icy ground)
-    [Range(0, 1)]
+    [Range (0, 1)]
     public float airControl = 0.2f; // Same as ground control, but calculated in air
     public float jumpForce = 100f; // Amount of force pulsed for a jump
     public Transform groundCheck; // The space that the ground will be checked at
@@ -20,7 +22,7 @@ public class ComplexGravity2DPlatformController : MonoBehaviour {
     #region private variables
     bool faceR = true; /* If the object is facing right (true) or left (false); used to set sprite direction */
     Rigidbody2D rigid; // The object's physics calculator
-    ComplexGravity2D cgrav;
+    Gravity cgrav;
     bool grounded = false; // Whether the object is on the ground or not
     float gcWidth = 0.4f;
     float gcHeight = 0.1f; // How high the ground check will spread in either direction
@@ -29,12 +31,12 @@ public class ComplexGravity2DPlatformController : MonoBehaviour {
     /* Called when script is enabled */
     public void Start () {
         rigid = GetComponent<Rigidbody2D> (); // Set up the Rigidbody2D component so the code can use it
-        cgrav = GetComponent<ComplexGravity2D> ();
+        cgrav = GetComponent<Gravity> ();
     }
     /* Called once every frame */
     public void Update () {
         if (grounded && Input.GetButtonDown ("Jump")) { // If on the ground and the button mapped to "jump" has been pressed
-            rigid.AddForce (-cgrav.gravity.normalized * jumpForce); // Add the upwards "push" to the object
+            rigid.AddForce (-cgrav.DirectionForce * jumpForce); // Add the upwards "push" to the object
         }
     }
     /* Called once every physics step */
@@ -46,11 +48,15 @@ public class ComplexGravity2DPlatformController : MonoBehaviour {
         float move = Input.GetAxisRaw ("Horizontal");
         float usedLerp = (grounded ? groundControl : airControl);
 
-        //Quaternion gravRotation = Quaternion.AngleAxis (cgrav.gravityAngle, Vector3.forward);
-        //Quaternion invGravRotation = Quaternion.AngleAxis (-cgrav.gravityAngle, Vector3.forward);
+        Vector3 v = rigid.velocity;
+        v = cgrav.RotateNormal (v);
+        float vy = v.y;
 
-        Vector2 localMovement = new Vector2 (move * speed, (/*invGravRotation * */ rigid.velocity).y);
-        rigid.velocity = Vector2.Lerp (rigid.velocity,  /*gravRotation * */ localMovement, usedLerp);
+        Vector2 localMovement = new Vector2 (
+            move * speed,
+            cgrav.RotateNormal(rigid.velocity).y
+            );
+        rigid.velocity = Vector2.Lerp (rigid.velocity, cgrav.InvRotateNormal(localMovement), usedLerp);
 
         if ((move > 0 && !faceR) || (move < 0 && faceR))
             Flip ();

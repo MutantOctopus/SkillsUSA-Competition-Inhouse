@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Direction = CardinalGravity2D.Direction;
 
 namespace SurfacePlatformer {
     [ExecuteInEditMode]
@@ -14,18 +15,18 @@ namespace SurfacePlatformer {
             Top,
             Bottom
         }
-        private enum GravRotation {
-            Straight = 0,
-            Clockwise90 = -90,
-            CounterClockwise90 = 90,
-            Invert = 180
+        private enum Rotation {
+            Straight,
+            CounterClockwise90,
+            Invert,
+            Clockwise90
         }
 
         //[SerializeField]
         private UnityEvent rescaled = new UnityEvent ();
 
         [SerializeField]
-        private GravRotation turnToPaired;
+        private Rotation turnToPaired = Rotation.Straight;
         [SerializeField]
         private Side onwardEdge;
         [SerializeField]
@@ -35,7 +36,7 @@ namespace SurfacePlatformer {
         private Func<Vector2, bool> sideCheck;
         private Vector3 scale;
         private Vector2 offset;
-        private IDictionary<GameObject, GameObject> localObjects = new Dictionary<GameObject, GameObject>();
+        private IDictionary<GameObject, GameObject> localObjects;
 
         // Use this for initialization
         void Start () {
@@ -46,6 +47,10 @@ namespace SurfacePlatformer {
                     );
             }
             else {
+                if (localObjects == null) {
+                    localObjects = new Dictionary<GameObject, GameObject> ();
+                    pair.localObjects = localObjects;
+                }
                 pair.rescaled.AddListener (OnPairRescaled);
                 VecRotate = GetVectorTransform (turnToPaired);
                 sideCheck = GetOffsideDetector (onwardEdge);
@@ -61,61 +66,64 @@ namespace SurfacePlatformer {
             }
             if (scale != gameObject.transform.localScale) {
                 scale = gameObject.transform.localScale;
-                rescaled.Invoke();
+                rescaled.Invoke ();
             }
         }
 
         public void OnTriggerEnter2D (Collider2D collision) {
-            GameObject cobj = collision.gameObject;
-            string ctag = cobj.tag;
-            if (!pair.localObjects.ContainsKey(cobj) && (ctag == "Player" || ctag == "Enemy")) {
-                GameObject clone = Instantiate (
-                    cobj,
-                    (Vector2)cobj.transform.position + offset,
-                    cobj.transform.rotation
-                    ) as GameObject;
-                localObjects.Add (clone, cobj);
-                var clRigid = clone.GetComponent<Rigidbody2D> ();
-                var clGrav = clone.GetComponent<ComplexGravity2D> ();
-                clRigid.velocity = VecRotate (collision.GetComponent<Rigidbody2D> ().velocity);
-                clRigid.angularVelocity = collision.GetComponent<Rigidbody2D> ().angularVelocity;
-                clGrav.gravity = VecRotate (clGrav.gravity);
-                clone.transform.RotateAround (pair.transform.position, Vector3.forward, (int)turnToPaired);
-            } else {
-                pair.localObjects.Add (pair.localObjects [cobj], cobj);
+            if (sideCheck (collision.transform.position) && !localObjects.ContainsKey (collision.gameObject)) {
+                GameObject cobj = collision.gameObject;
+                string ctag = cobj.tag;
+                if (!localObjects.ContainsKey (cobj) && (ctag == "Player" || ctag == "Enemy")) {
+                    GameObject clone = Instantiate (
+                        cobj,
+                        (Vector2)cobj.transform.position + offset,
+                        cobj.transform.rotation
+                        ) as GameObject;
+                    localObjects.Add (cobj, clone);
+                    localObjects.Add (clone, cobj);
+                    var clRigid = clone.GetComponent<Rigidbody2D> ();
+                    var clGrav = clone.GetComponent<CardinalGravity2D> ();
+                    clRigid.velocity = VecRotate (collision.GetComponent<Rigidbody2D> ().velocity);
+                    clRigid.angularVelocity = collision.GetComponent<Rigidbody2D> ().angularVelocity;
+                    clGrav.GravDirection = (Direction)(((int)clGrav.GravDirection + (int)turnToPaired) % 4);
+                    clone.transform.RotateAround (pair.transform.position, Vector3.forward, (int)turnToPaired * 90);
+                    /*clone.transform.rotation = Quaternion.Euler (
+                        0,
+                        0,
+                        90 * (int)turnToPaired + clone.transform.rotation.eulerAngles.z
+                        );*/
+                }
             }
         }
 
         public void OnTriggerExit2D (Collider2D collision) {
-            pair.localObjects.Remove (collision.gameObject);
-            if (!sideCheck(collision.transform.position)) {
+            localObjects.Remove (collision.gameObject);
+            if (!sideCheck (collision.transform.position)) {
                 Destroy (collision.gameObject);
-            } else if (collision.gameObject.name.Contains("(Clone)")) {
-                Debug.Log (collision.gameObject.name);
+            }
+            else if (collision.gameObject.name.Contains ("(Clone)")) {
                 collision.gameObject.name = collision.gameObject.name.Remove (collision.gameObject.name.IndexOf ("(Clone)"));
             }
         }
 
         public void OnPairRescaled () {
-            gameObject.transform.localScale = pair.VecRotate(
-                pair.transform.localScale
-                )
-            ;
+            gameObject.transform.localScale = pair.VecRotate (pair.transform.localScale);
             scale = gameObject.transform.localScale;
         }
 
-        private Func<Vector2, Vector2> GetVectorTransform (GravRotation gr) {
+        private Func<Vector2, Vector2> GetVectorTransform (Rotation gr) {
             switch (gr) {
-                case GravRotation.Straight:
+                case Rotation.Straight:
                     return (v) => v;
-                case GravRotation.Clockwise90:
+                case Rotation.Clockwise90:
                     return (v) => new Vector2 (v.y, v.x);
-                case GravRotation.CounterClockwise90:
+                case Rotation.CounterClockwise90:
                     return (v) => new Vector2 (-v.y, v.x);
-                case GravRotation.Invert:
+                case Rotation.Invert:
                     return (v) => new Vector2 (-v.x, -v.y);
                 default:
-                    Debug.LogError ("Invalid GravRotation passed");
+                    Debug.LogError ("Invalid Rotation passed");
                     return (v) => {
                         Debug.LogError ("Using default Func <0,0>", this);
                         return new Vector2 ();
