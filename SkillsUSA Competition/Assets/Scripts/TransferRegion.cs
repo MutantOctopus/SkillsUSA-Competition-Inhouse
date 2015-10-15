@@ -21,8 +21,8 @@ namespace SurfacePlatformer {
             Invert = 180
         }
 
-        [SerializeField]
-        private UnityEvent rescaled;
+        //[SerializeField]
+        private UnityEvent rescaled = new UnityEvent ();
 
         [SerializeField]
         private GravRotation turnToPaired;
@@ -32,6 +32,7 @@ namespace SurfacePlatformer {
         private TransferRegion pair;
 
         private Func<Vector2, Vector2> VecRotate;
+        private Func<Vector2, bool> sideCheck;
         private Vector3 scale;
         private Vector2 offset;
         private IDictionary<GameObject, GameObject> localObjects = new Dictionary<GameObject, GameObject>();
@@ -45,7 +46,9 @@ namespace SurfacePlatformer {
                     );
             }
             else {
+                pair.rescaled.AddListener (OnPairRescaled);
                 VecRotate = GetVectorTransform (turnToPaired);
+                sideCheck = GetOffsideDetector (onwardEdge);
                 scale = gameObject.transform.localScale;
                 offset = pair.transform.position - transform.position;
             }
@@ -84,7 +87,13 @@ namespace SurfacePlatformer {
         }
 
         public void OnTriggerExit2D (Collider2D collision) {
-
+            pair.localObjects.Remove (collision.gameObject);
+            if (!sideCheck(collision.transform.position)) {
+                Destroy (collision.gameObject);
+            } else if (collision.gameObject.name.Contains("(Clone)")) {
+                Debug.Log (collision.gameObject.name);
+                collision.gameObject.name = collision.gameObject.name.Remove (collision.gameObject.name.IndexOf ("(Clone)"));
+            }
         }
 
         public void OnPairRescaled () {
@@ -108,8 +117,27 @@ namespace SurfacePlatformer {
                 default:
                     Debug.LogError ("Invalid GravRotation passed");
                     return (v) => {
-                        Debug.LogError ("Using default Func <0,0>");
+                        Debug.LogError ("Using default Func <0,0>", this);
                         return new Vector2 ();
+                    };
+            }
+        }
+
+        private Func<Vector2, bool> GetOffsideDetector (Side s) {
+            switch (s) {
+                case Side.Left:
+                    return (v) => v.x <= gameObject.transform.position.x;
+                case Side.Right:
+                    return (v) => v.x >= gameObject.transform.position.x;
+                case Side.Top:
+                    return (v) => v.y >= gameObject.transform.position.y;
+                case Side.Bottom:
+                    return (v) => v.y <= gameObject.transform.position.y;
+                default:
+                    Debug.Log ("Invalid Side passed.");
+                    return (v) => {
+                        Debug.Log ("Default detector (always true)", this);
+                        return true;
                     };
             }
         }

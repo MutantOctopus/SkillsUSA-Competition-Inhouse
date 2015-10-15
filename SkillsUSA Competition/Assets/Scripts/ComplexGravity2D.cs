@@ -4,6 +4,13 @@ using System.Collections;
 namespace OctoTools {
     public class ComplexGravity2D : MonoBehaviour {
         public Vector2 gravity = new Vector2 (0, -9.8F);
+        public float gravityAngle {
+            get {
+                float val = Mathf.Rad2Deg * Mathf.Acos (gravity.x / gravity.magnitude);
+                print ("Grav angle: " + val);
+                return val;
+            }
+        }
         Rigidbody2D r;
 
         // Use this for initialization

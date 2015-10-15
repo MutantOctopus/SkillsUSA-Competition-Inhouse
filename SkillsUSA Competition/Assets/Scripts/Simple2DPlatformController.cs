@@ -4,25 +4,6 @@ using System.Collections;
 
 public class Simple2DPlatformController : MonoBehaviour
 {
-	#region Region Help
-	// A region is a section of code that can be folded and unfolded, hiding it from view or showing it as necessary.
-	// It is a type of "preprocessor", signified by the # symbol, meaning it does stuff before the code is compiled and run.
-	// There are a number of preprocessors, not all of them important.
-	// Regions can be named by typing, after a space, on the same line as "#region", like seen above with "Region Help"
-	#region It goes deeper!
-	// Regions can actually be within other regions, for further organization.
-	// Regions are begun and ended with an "#endregion".
-	// The #endregion, much like braces, will hook up to the first disconnected #region it sees.
-	// You can't collapse a disconnected #region.
-	// As an aside, notice that the code doesn't disappear - it just hides.
-	// See that when this section is closed, the line numbers (far left) will skip the hidden lines.
-	// This is important when seeking out the source of errors, which will usually give the line number.
-	#endregion
-	// More:
-	// MonoDevelop creates foldable code on its own, without region preprocessors:
-	// Any set of curly braces or comment blocks with more than one line will be collapsible automatically.
-	// This can be seen in the comments above.
-	#endregion
 	#region Variables
 	#region public variables
 	public float speed = 10f; // Horizontal movement speed on ground
@@ -108,30 +89,6 @@ public class Simple2DPlatformController : MonoBehaviour
 		float usedLerp = (grounded ? groundControl : airControl);
 		// Below: Alter velocity
 		rigid.velocity = Vector2.Lerp (rigid.velocity, new Vector2 (move * speed, rigid.velocity.y), usedLerp);
-		/*
-		 * Rigidbody2D.velocity:
-		 * Changing this variable will manually set the object's velocity to whatever is needed.
-		 * If you set velocity to a Vector2(0, 0), you'll stop completely, for example.
-		 * Here, we're using it to change the horizontal value to our used speed, while our y value
-		 * stays where it should be normally.
-		 */
-		/*
-		 * lerp:
-		 * Lerp is a shorthand for linear interpolation.
-		 * A lerp can be a bit difficult to understand, but once it clicks it's very simple.
-		 * Picture a grid, and on this grid are vectors, each one's x and y plotted.
-		 * Draw a line between them. This is the "linear" aspect.
-		 * What the lerp function does is it takes a point on this line and returns that vector.
-		 * The constant is the percentage along that line. 0 is the first, or "from", vector;
-		 * 1.0 is the second, or "to", vector. 0.5 is the exact average between the two.
-		 * 0.25 is a quarter distance from "from" to "to". 0.75 is three quarters distance.
-		 * In this case, it's used to give our "lag" or "momentum". A lower lerp constant will
-		 * yield a lesser amount of change between from "from" towards "to", which means it
-		 * will accelerate and decelerate more slowly, like the surface has less friction,
-		 * because each new vector is only a small part of the way towards the goal.
-		 * Likewise, a higher constant means you reach your goal speed faster, because
-		 * it takes many fewer steps.
-		 */
 		// Below: checks if you're facing the wrong way for your direction, and flips the sprite if you are.
 		if ((move > 0 && !faceR) || (move < 0 && faceR))
 			Flip ();
@@ -142,14 +99,6 @@ public class Simple2DPlatformController : MonoBehaviour
 		faceR = !faceR; // Toggle whether facing left or right
 		Vector3 scale = transform.localScale; // Retrieves the current scale of the object
 		scale.x *= -1; // Multiples the scale's x by -1, which turns the sprite inwards on itself and flips it
-		/*
-		 * Sprite mirroring:
-		 * The example above is a seemingly odd pick by the person who did the Unity 2D tutorial, but there is a reason.
-		 * Sprites are the same on either side, so it seems the obvious choice is to rotate the sprite 180
-		 * degress around the y-axis.
-		 * However, Unity uses Quaternions for rotation, which are difficult to understand.
-		 * Inverting the scale is just as effective and much more readable.
-		 */
 		transform.localScale = scale; // Sets the scale of the object to the new, inverted scale
 	}
 	// Lots of complex stuff below to create the custom Inspector GUI for this script!
