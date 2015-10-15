@@ -39,7 +39,7 @@ namespace SurfacePlatformer {
         private Func<Vector2, Vector2> VecRotate;
         private Vector3 scale;
         private Vector2 offset;
-        private IDictionary<GameObject, GameObject> localObjects;
+        private IDictionary<GameObject, GameObject> localObjects = new Dictionary<GameObject, GameObject>();
 
         // Use this for initialization
         void Start () {
@@ -75,19 +75,23 @@ namespace SurfacePlatformer {
         }
 
         public void OnTriggerEnter2D (Collider2D collision) {
-            string ctag = collision.gameObject.tag;
-            if (!pair.localObjects.ContainsKey(collision.gameObject) && (ctag == "Player" || ctag == "Enemy")) {
+            GameObject cobj = collision.gameObject;
+            string ctag = cobj.tag;
+            if (!pair.localObjects.ContainsKey(cobj) && (ctag == "Player" || ctag == "Enemy")) {
                 GameObject clone = Instantiate (
-                    collision.gameObject,
-                    (Vector2)collision.gameObject.transform.position + offset,
-                    collision.gameObject.transform.rotation
-                    ) as GameObject; ;
+                    cobj,
+                    (Vector2)cobj.transform.position + offset,
+                    cobj.transform.rotation
+                    ) as GameObject;
+                localObjects.Add (clone, cobj);
                 var clRigid = clone.GetComponent<Rigidbody2D> ();
                 var clGrav = clone.GetComponent<ComplexGravity2D> ();
                 clRigid.velocity = VecRotate (collision.GetComponent<Rigidbody2D> ().velocity);
                 clRigid.angularVelocity = collision.GetComponent<Rigidbody2D> ().angularVelocity;
                 clGrav.gravity = VecRotate (clGrav.gravity);
                 clone.transform.RotateAround (pair.transform.position, Vector3.forward, (int)turnToPaired);
+            } else {
+                pair.localObjects.Add (pair.localObjects [cobj], cobj);
             }
         }
 
