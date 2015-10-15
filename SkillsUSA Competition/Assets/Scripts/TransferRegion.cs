@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace SurfacePlatformer {
     [ExecuteInEditMode]
@@ -19,15 +20,9 @@ namespace SurfacePlatformer {
             CounterClockwise90 = 90,
             Invert = 180
         }
-        private struct PairCloneReturn {
-            public GameObject result;
-            public bool? hadPair;
-            public bool unlocked;
-        }
 
-        public bool scaleManuallyAltered {
-            get; private set;
-        }
+        [SerializeField]
+        private UnityEvent rescaled;
 
         [SerializeField]
         private GravRotation turnToPaired;
@@ -52,26 +47,19 @@ namespace SurfacePlatformer {
             else {
                 VecRotate = GetVectorTransform (turnToPaired);
                 scale = gameObject.transform.localScale;
-                scaleManuallyAltered = false;
                 offset = pair.transform.position - transform.position;
             }
         }
 
         // Update is called once per frame
         void Update () {
-            #region In-editor scale equalizing
+            if (VecRotate == null) {
+                VecRotate = GetVectorTransform (turnToPaired);
+            }
             if (scale != gameObject.transform.localScale) {
-                scaleManuallyAltered = true;
                 scale = gameObject.transform.localScale;
+                rescaled.Invoke();
             }
-            if (pair && scaleManuallyAltered && !pair.scaleManuallyAltered) {
-                pair.transform.localScale = VecRotate(scale);
-            }
-            #endregion
-        }
-
-        void LateUpdate () {
-            scaleManuallyAltered = false;
         }
 
         public void OnTriggerEnter2D (Collider2D collision) {
@@ -97,6 +85,14 @@ namespace SurfacePlatformer {
 
         public void OnTriggerExit2D (Collider2D collision) {
 
+        }
+
+        public void OnPairRescaled () {
+            gameObject.transform.localScale = pair.VecRotate(
+                pair.transform.localScale
+                )
+            ;
+            scale = gameObject.transform.localScale;
         }
 
         private Func<Vector2, Vector2> GetVectorTransform (GravRotation gr) {
