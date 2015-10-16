@@ -23,7 +23,10 @@ public class CardinalGravity2DPlatformController : MonoBehaviour {
     bool faceR = true; /* If the object is facing right (true) or left (false); used to set sprite direction */
     Rigidbody2D rigid; // The object's physics calculator
     Animator anim;
+    AudioSource _audio;
     Gravity cgrav;
+    [SerializeField]
+    AudioClip jump;
     bool grounded = false; // Whether the object is on the ground or not
     bool Grounded {
         get {
@@ -45,11 +48,17 @@ public class CardinalGravity2DPlatformController : MonoBehaviour {
         rigid = GetComponent<Rigidbody2D> (); // Set up the Rigidbody2D component so the code can use it
         cgrav = GetComponent<Gravity> ();
         anim = GetComponent<Animator> ();
+        _audio = GetComponent<AudioSource> ();
     }
     /* Called once every frame */
     public void Update () {
         if (Grounded && Input.GetButtonDown ("Jump")) { // If on the ground and the button mapped to "jump" has been pressed
             rigid.AddForce (-cgrav.DirectionForce * jumpForce); // Add the upwards "push" to the object
+            if (_audio) {
+                _audio.clip = jump;
+                _audio.loop = false;
+                _audio.Play();
+            }
         }
     }
     /* Called once every physics step */
