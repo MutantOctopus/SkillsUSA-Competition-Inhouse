@@ -22,7 +22,7 @@ namespace SurfacePlatformer {
             Clockwise90
         }
 
-        //[SerializeField]
+        [SerializeField]
         private UnityEvent rescaled = new UnityEvent ();
 
         [SerializeField]
@@ -51,7 +51,6 @@ namespace SurfacePlatformer {
                     localObjects = new Dictionary<GameObject, GameObject> ();
                     pair.localObjects = localObjects;
                 }
-                pair.rescaled.AddListener (OnPairRescaled);
                 VecRotate = GetVectorTransform (turnToPaired);
                 sideCheck = GetOffsideDetector (onwardEdge);
                 scale = gameObject.transform.localScale;

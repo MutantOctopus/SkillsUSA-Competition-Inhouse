@@ -1,9 +1,20 @@
 fileFormatVersion: 2
 guid: dc9422e7dacea434696d1b9f5ffa6093
-timeCreated: 1444401870
+timeCreated: 1444949863
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName: {}
+  fileIDToRecycleName:
+    21300000: p1_walk_0
+    21300002: p1_walk_1
+    21300004: p1_walk_2
+    21300006: p1_walk_3
+    21300008: p1_walk_4
+    21300010: p1_walk_5
+    21300012: p1_walk_6
+    21300014: p1_walk_7
+    21300016: p1_walk_8
+    21300018: p1_walk_9
+    21300020: p1_walk_10
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -30,7 +41,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     filterMode: -1
-    aniso: -1
+    aniso: 16
     mipBias: -1
     wrapMode: 1
   nPOTScale: 0
@@ -38,18 +49,128 @@ TextureImporter:
   rGBM: 0
   compressionQuality: 50
   allowsAlphaSplitting: 0
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 50
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
-    sprites: []
+    sprites:
+    - name: p1_walk_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 419
+        width: 66
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_1
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 419
+        width: 66
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_2
+      rect:
+        serializedVersion: 2
+        x: 132
+        y: 419
+        width: 68
+        height: 93
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 326
+        width: 66
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_4
+      rect:
+        serializedVersion: 2
+        x: 66
+        y: 326
+        width: 66
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_5
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 326
+        width: 72
+        height: 93
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 233
+        width: 70
+        height: 93
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_7
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 233
+        width: 70
+        height: 93
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_8
+      rect:
+        serializedVersion: 2
+        x: 142
+        y: 233
+        width: 69
+        height: 92
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 140
+        width: 71
+        height: 93
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: p1_walk_10
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 141
+        width: 68
+        height: 92
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
   assetBundleName: 

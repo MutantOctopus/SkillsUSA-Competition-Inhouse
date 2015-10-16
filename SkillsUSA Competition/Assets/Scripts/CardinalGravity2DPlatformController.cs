@@ -22,8 +22,20 @@ public class CardinalGravity2DPlatformController : MonoBehaviour {
     #region private variables
     bool faceR = true; /* If the object is facing right (true) or left (false); used to set sprite direction */
     Rigidbody2D rigid; // The object's physics calculator
+    Animator anim;
     Gravity cgrav;
     bool grounded = false; // Whether the object is on the ground or not
+    bool Grounded {
+        get {
+            return grounded;
+        }
+        set {
+            if (anim) {
+                anim.SetBool ("Grounded", value);
+            }
+            grounded = value;
+        }
+    }
     float gcWidth = 0.4f;
     float gcHeight = 0.1f; // How high the ground check will spread in either direction
     #endregion
@@ -32,10 +44,11 @@ public class CardinalGravity2DPlatformController : MonoBehaviour {
     public void Start () {
         rigid = GetComponent<Rigidbody2D> (); // Set up the Rigidbody2D component so the code can use it
         cgrav = GetComponent<Gravity> ();
+        anim = GetComponent<Animator> ();
     }
     /* Called once every frame */
     public void Update () {
-        if (grounded && Input.GetButtonDown ("Jump")) { // If on the ground and the button mapped to "jump" has been pressed
+        if (Grounded && Input.GetButtonDown ("Jump")) { // If on the ground and the button mapped to "jump" has been pressed
             rigid.AddForce (-cgrav.DirectionForce * jumpForce); // Add the upwards "push" to the object
         }
     }
@@ -44,18 +57,15 @@ public class CardinalGravity2DPlatformController : MonoBehaviour {
         Vector2 gcp = groundCheck.position;
         Vector2 A = new Vector2 (gcp.x - gcWidth, gcp.y + gcHeight); // Upper corner for ground check rectangle
         Vector2 B = new Vector2 (gcp.x + gcWidth, gcp.y - gcHeight); // Lower corner for ground check rectangle
-        grounded = Physics2D.OverlapArea (A, B, GroundMask);
+        Grounded = Physics2D.OverlapArea (A, B, GroundMask);
         float move = Input.GetAxisRaw ("Horizontal");
-        float usedLerp = (grounded ? groundControl : airControl);
+        float usedLerp = (Grounded ? groundControl : airControl);
 
-        Vector3 v = rigid.velocity;
-        v = cgrav.RotateNormal (v);
-        float vy = v.y;
-
-        Vector2 localMovement = new Vector2 (
-            move * speed,
-            cgrav.RotateNormal(rigid.velocity).y
-            );
+        //Vector3 v = rigid.velocity;
+        //v = cgrav.RotateNormal (v);
+        //float vy = v.y;
+        anim.SetBool ("Walking", move != 0);
+        Vector2 localMovement = new Vector2 (move * speed, cgrav.RotateNormal(rigid.velocity).y);
         rigid.velocity = Vector2.Lerp (rigid.velocity, cgrav.InvRotateNormal(localMovement), usedLerp);
 
         if ((move > 0 && !faceR) || (move < 0 && faceR))

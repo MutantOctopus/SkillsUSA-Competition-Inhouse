@@ -12,7 +12,7 @@ public class CardinalGravity2D : MonoBehaviour {
     [Range (0, 99999)]
     private float GravConstant = 9.8f;
     [SerializeField]
-    private Direction _gDirec;
+    private Direction _gDirec = Direction.Down;
     private Vector2 force;
     private Rigidbody2D rb2D;
 
@@ -77,6 +77,12 @@ public class CardinalGravity2D : MonoBehaviour {
     [CustomEditor (typeof (CardinalGravity2D))]
     private class CardinalGravityInspector : Editor {
         public override void OnInspectorGUI () {
+            #region Script field
+            serializedObject.Update ();
+            SerializedProperty prop = serializedObject.FindProperty ("m_Script");
+            EditorGUILayout.PropertyField (prop, true, new GUILayoutOption [0]);
+            serializedObject.ApplyModifiedProperties ();
+            #endregion
             CardinalGravity2D _target = target as CardinalGravity2D;
             _target.GravDirection = (Direction)EditorGUILayout.EnumPopup (
                 "Gravity Direction",
